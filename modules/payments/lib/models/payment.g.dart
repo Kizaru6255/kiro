@@ -1,0 +1,59 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'payment.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$PaymentImpl _$$PaymentImplFromJson(Map<String, dynamic> json) =>
+    _$PaymentImpl(
+      id: json['id'] as String,
+      orderId: json['orderId'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'INR',
+      method: $enumDecode(_$PaymentMethodTypeEnumMap, json['method']),
+      status: $enumDecodeNullable(_$PaymentStatusEnumMap, json['status']) ??
+          PaymentStatus.pending,
+      transactionId: json['transactionId'] as String?,
+      gateway: json['gateway'] as String?,
+      description: json['description'] as String?,
+      completedAt: json['completedAt'] == null
+          ? null
+          : DateTime.parse(json['completedAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      metadata: json['metadata'] as Map<String, dynamic>?,
+    );
+
+Map<String, dynamic> _$$PaymentImplToJson(_$PaymentImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'orderId': instance.orderId,
+      'amount': instance.amount,
+      'currency': instance.currency,
+      'method': _$PaymentMethodTypeEnumMap[instance.method]!,
+      'status': _$PaymentStatusEnumMap[instance.status]!,
+      'transactionId': instance.transactionId,
+      'gateway': instance.gateway,
+      'description': instance.description,
+      'completedAt': instance.completedAt?.toIso8601String(),
+      'createdAt': instance.createdAt.toIso8601String(),
+      'metadata': instance.metadata,
+    };
+
+const _$PaymentMethodTypeEnumMap = {
+  PaymentMethodType.card: 'card',
+  PaymentMethodType.upi: 'upi',
+  PaymentMethodType.netbanking: 'netbanking',
+  PaymentMethodType.wallet: 'wallet',
+  PaymentMethodType.cash: 'cash',
+};
+
+const _$PaymentStatusEnumMap = {
+  PaymentStatus.pending: 'pending',
+  PaymentStatus.processing: 'processing',
+  PaymentStatus.completed: 'completed',
+  PaymentStatus.failed: 'failed',
+  PaymentStatus.refunded: 'refunded',
+  PaymentStatus.cancelled: 'cancelled',
+};

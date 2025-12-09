@@ -1,15 +1,29 @@
 name: kiro_cli
-description: A sample command-line application.
-version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+description: Kiro CLI - Generate production-ready Flutter applications with modular architecture.
+version: 0.1.0
+homepage: https://github.com/chaitanyamhetre/kiro
+repository: https://github.com/chaitanyamhetre/kiro/tree/main/kiro_cli
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.0.0
 
-# Add regular dependencies here.
+executables:
+  kiro: kiro
+
 dependencies:
+  # CLI Framework
+  args: ^2.4.2
+  
+  # File System
   path: ^1.9.0
+  
+  # YAML/JSON
+  yaml: ^3.1.2
+  
+  # Utilities
+  collection: ^1.18.0
 
 dev_dependencies:
-  lints: ^6.0.0
-  test: ^1.25.6
+  lints: ^3.0.0
+  test: ^1.25.0
+  mocktail: ^1.0.3

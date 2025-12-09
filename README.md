@@ -22,7 +22,7 @@
 
 ## 🌟 What is Kiro?
 
-Kiro is a **next-generation modular app generator** that enables developers (and non-developers) to create full-fledged Flutter applications through a guided interactive flow.
+Kiro is a **next-generation modular app generator** that enables developers (and non-devel opers) to create full-fledged Flutter applications through a guided interactive flow.
 
 Think of Kiro as:
 
@@ -135,15 +135,28 @@ Self-contained, pluggable feature packages:
 
 ```bash
 # Clone the repository
-git clone https://github.com/chaitanyamhetre/kiro.git
+git clone https://github.com/Kizaru6255/kiro.git
 cd kiro
 
 # Install CLI dependencies
 cd kiro_cli
 dart pub get
 
-# Run the CLI
-dart run bin/kiro.dart
+# Install CLI globally (recommended)
+dart pub global activate --source path .
+
+# Add to PATH (add this to your ~/.bashrc or ~/.zshrc)
+export PATH="$PATH:$HOME/.pub-cache/bin"
+
+# Verify installation
+kiro --version
+```
+
+**Note:** If `kiro` command doesn't work after installation, make sure `$HOME/.pub-cache/bin` is in your PATH. You can add it permanently by running:
+
+```bash
+echo 'export PATH="$PATH:$HOME/.pub-cache/bin"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ### Creating Your First App
@@ -385,7 +398,7 @@ Contributions are welcome! Here's how you can help:
 
 ```bash
 # Clone the repository
-git clone https://github.com/chaitanyamhetre/kiro.git
+git clone https://github.com/Kizaru6255/kiro.git
 cd kiro
 
 # Set up kiro_core
@@ -422,7 +435,7 @@ Contact the author for licensing inquiries.
 
 **Chaitanya Mhetre**
 
-- GitHub: [@chaitanyamhetre](https://github.com/chaitanyamhetre)
+- GitHub: [@chaitanyamhetre](https://github.com/Kizaru6255)
 - Email: [Contact via GitHub]
 
 ---

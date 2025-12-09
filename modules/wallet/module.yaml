@@ -1,0 +1,53 @@
+# Wallet Module Configuration
+name: wallet
+display_name: Digital Wallet
+description: Digital wallet with balance, transactions, and money management
+version: 1.0.0
+
+# Compatibility
+kiro_core_version: ^0.1.0
+kiro_cli_version: ^0.1.0
+
+# Dependencies
+dependencies:
+  - name: intl
+    version: ^0.19.0
+
+# Permissions
+permissions: []
+
+# Routes
+routes:
+  - path: /wallet
+    name: wallet
+    builder: WalletScreen
+  - path: /wallet/add-money
+    name: addMoney
+    builder: AddMoneyScreen
+  - path: /wallet/transactions
+    name: transactions
+    builder: TransactionsScreen
+  - path: /wallet/transaction/:id
+    name: transactionDetail
+    builder: TransactionDetailScreen
+
+# Providers
+providers:
+  - WalletProvider
+  - TransactionProvider
+
+# Configuration
+config:
+  currency:
+    type: string
+    default: "INR"
+    description: Default currency code
+  min_balance:
+    type: int
+    default: 0
+    description: Minimum wallet balance
+  enable_transactions:
+    type: bool
+    default: true
+    description: Enable transaction history
+

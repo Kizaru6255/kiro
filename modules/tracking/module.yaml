@@ -1,0 +1,47 @@
+# Tracking Module Configuration
+name: tracking
+display_name: GPS Tracking
+description: Location tracking and maps integration
+version: 1.0.0
+
+# Compatibility
+kiro_core_version: ^0.1.0
+kiro_cli_version: ^0.1.0
+
+# Dependencies
+dependencies:
+  - name: google_maps_flutter
+    version: ^2.5.3
+  - name: geolocator
+    version: ^11.0.0
+
+# Permissions
+permissions:
+  - location
+  - locationAlways
+
+# Routes
+routes:
+  - path: /tracking
+    name: tracking
+    builder: TrackingScreen
+  - path: /tracking/map
+    name: map
+    builder: MapScreen
+
+# Providers
+providers:
+  - LocationProvider
+  - TrackingProvider
+
+# Configuration
+config:
+  update_interval_seconds:
+    type: int
+    default: 5
+    description: Location update interval in seconds
+  enable_background:
+    type: bool
+    default: false
+    description: Enable background location tracking
+

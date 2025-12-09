@@ -1,0 +1,54 @@
+# Chat Module Configuration
+name: chat
+display_name: Real-time Chat
+description: Real-time messaging with text, images, and file sharing
+version: 1.0.0
+
+# Compatibility
+kiro_core_version: ^0.1.0
+kiro_cli_version: ^0.1.0
+
+# Dependencies
+dependencies:
+  - name: cloud_firestore
+    version: ^4.13.6
+    optional: true
+  - name: firebase_storage
+    version: ^11.5.6
+    optional: true
+  - name: image_picker
+    version: ^1.0.5
+  - name: cached_network_image
+    version: ^3.3.0
+
+# Permissions
+permissions:
+  - camera
+  - photos
+  - storage
+
+# Routes
+routes:
+  - path: /chat
+    name: chatList
+    builder: ChatListScreen
+  - path: /chat/:chatId
+    name: chatDetail
+    builder: ChatDetailScreen
+
+# Providers
+providers:
+  - ChatProvider
+  - MessageProvider
+
+# Configuration
+config:
+  enable_file_sharing:
+    type: bool
+    default: true
+    description: Enable file sharing in chats
+  max_file_size_mb:
+    type: int
+    default: 10
+    description: Maximum file size in MB
+

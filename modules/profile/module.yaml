@@ -1,0 +1,45 @@
+# Profile Module Configuration
+name: profile
+display_name: User Profile
+description: User profile management with edit, settings, and preferences
+version: 1.0.0
+
+# Compatibility
+kiro_core_version: ^0.1.0
+kiro_cli_version: ^0.1.0
+
+# Dependencies
+dependencies:
+  - name: image_picker
+    version: ^1.0.5
+  - name: cached_network_image
+    version: ^3.3.0
+
+# Permissions
+permissions:
+  - camera
+  - photos
+
+# Routes
+routes:
+  - path: /profile
+    name: profile
+    builder: ProfileScreen
+  - path: /profile/edit
+    name: editProfile
+    builder: EditProfileScreen
+  - path: /profile/settings
+    name: settings
+    builder: SettingsScreen
+
+# Providers
+providers:
+  - ProfileProvider
+
+# Configuration
+config:
+  enable_profile_picture:
+    type: bool
+    default: true
+    description: Enable profile picture upload
+

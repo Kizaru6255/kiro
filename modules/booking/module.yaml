@@ -1,0 +1,48 @@
+# Booking Module Configuration
+name: booking
+display_name: Booking & Appointments
+description: Appointment booking system with calendar, time slots, and reservations
+version: 1.0.0
+
+# Compatibility
+kiro_core_version: ^0.1.0
+kiro_cli_version: ^0.1.0
+
+# Dependencies
+dependencies:
+  - name: table_calendar
+    version: ^3.0.9
+  - name: intl
+    version: ^0.19.0
+
+# Permissions
+permissions: []
+
+# Routes
+routes:
+  - path: /bookings
+    name: bookings
+    builder: BookingsScreen
+  - path: /bookings/create
+    name: createBooking
+    builder: CreateBookingScreen
+  - path: /bookings/:id
+    name: bookingDetail
+    builder: BookingDetailScreen
+
+# Providers
+providers:
+  - BookingProvider
+  - TimeSlotProvider
+
+# Configuration
+config:
+  default_duration_minutes:
+    type: int
+    default: 60
+    description: Default booking duration in minutes
+  enable_recurring:
+    type: bool
+    default: false
+    description: Enable recurring bookings
+

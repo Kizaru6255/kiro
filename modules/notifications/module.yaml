@@ -1,0 +1,43 @@
+# Notifications Module Configuration
+name: notifications
+display_name: Notifications
+description: Push notifications and local notifications
+version: 1.0.0
+
+# Compatibility
+kiro_core_version: ^0.1.0
+kiro_cli_version: ^0.1.0
+
+# Dependencies
+dependencies:
+  - name: firebase_messaging
+    version: ^14.7.9
+    optional: true
+  - name: flutter_local_notifications
+    version: ^17.0.0
+
+# Permissions
+permissions:
+  - notification
+
+# Routes
+routes:
+  - path: /notifications
+    name: notifications
+    builder: NotificationsScreen
+
+# Providers
+providers:
+  - NotificationProvider
+
+# Configuration
+config:
+  enable_push:
+    type: bool
+    default: true
+    description: Enable push notifications
+  enable_local:
+    type: bool
+    default: true
+    description: Enable local notifications
+
