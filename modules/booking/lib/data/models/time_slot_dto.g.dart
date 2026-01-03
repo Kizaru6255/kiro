@@ -1,0 +1,31 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'time_slot_dto.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$TimeSlotDtoImpl _$$TimeSlotDtoImplFromJson(Map<String, dynamic> json) =>
+    _$TimeSlotDtoImpl(
+      startTime: DateTime.parse(json['startTime'] as String),
+      endTime: DateTime.parse(json['endTime'] as String),
+      availability: $enumDecodeNullable(
+              _$SlotAvailabilityEnumMap, json['availability']) ??
+          SlotAvailability.available,
+      bookingId: json['bookingId'] as String?,
+    );
+
+Map<String, dynamic> _$$TimeSlotDtoImplToJson(_$TimeSlotDtoImpl instance) =>
+    <String, dynamic>{
+      'startTime': instance.startTime.toIso8601String(),
+      'endTime': instance.endTime.toIso8601String(),
+      'availability': _$SlotAvailabilityEnumMap[instance.availability]!,
+      'bookingId': instance.bookingId,
+    };
+
+const _$SlotAvailabilityEnumMap = {
+  SlotAvailability.available: 'available',
+  SlotAvailability.booked: 'booked',
+  SlotAvailability.unavailable: 'unavailable',
+};

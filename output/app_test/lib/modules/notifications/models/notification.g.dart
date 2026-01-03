@@ -1,0 +1,48 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'notification.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$AppNotificationImpl _$$AppNotificationImplFromJson(
+        Map<String, dynamic> json) =>
+    _$AppNotificationImpl(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      body: json['body'] as String,
+      type: $enumDecodeNullable(_$NotificationTypeEnumMap, json['type']) ??
+          NotificationType.info,
+      imageUrl: json['imageUrl'] as String?,
+      actionUrl: json['actionUrl'] as String?,
+      isRead: json['isRead'] as bool? ?? false,
+      readAt: json['readAt'] == null
+          ? null
+          : DateTime.parse(json['readAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      data: json['data'] as Map<String, dynamic>?,
+    );
+
+Map<String, dynamic> _$$AppNotificationImplToJson(
+        _$AppNotificationImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'body': instance.body,
+      'type': _$NotificationTypeEnumMap[instance.type]!,
+      'imageUrl': instance.imageUrl,
+      'actionUrl': instance.actionUrl,
+      'isRead': instance.isRead,
+      'readAt': instance.readAt?.toIso8601String(),
+      'createdAt': instance.createdAt.toIso8601String(),
+      'data': instance.data,
+    };
+
+const _$NotificationTypeEnumMap = {
+  NotificationType.info: 'info',
+  NotificationType.success: 'success',
+  NotificationType.warning: 'warning',
+  NotificationType.error: 'error',
+  NotificationType.promotion: 'promotion',
+};

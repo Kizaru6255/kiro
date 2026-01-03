@@ -1,0 +1,54 @@
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$TransactionDtoImpl _$$TransactionDtoImplFromJson(Map<String, dynamic> json) =>
+    _$TransactionDtoImpl(
+      id: json['id'] as String,
+      walletId: json['walletId'] as String,
+      type: $enumDecode(_$TransactionTypeEnumMap, json['type']),
+      status: $enumDecode(_$TransactionStatusEnumMap, json['status']),
+      amount: (json['amount'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'INR',
+      description: json['description'] as String?,
+      referenceId: json['referenceId'] as String?,
+      recipientId: json['recipientId'] as String?,
+      senderId: json['senderId'] as String?,
+      completedAt: json['completedAt'] == null
+          ? null
+          : DateTime.parse(json['completedAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      metadata: json['metadata'] as Map<String, dynamic>?,
+    );
+
+Map<String, dynamic> _$$TransactionDtoImplToJson(
+        _$TransactionDtoImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'walletId': instance.walletId,
+      'type': _$TransactionTypeEnumMap[instance.type]!,
+      'status': _$TransactionStatusEnumMap[instance.status]!,
+      'amount': instance.amount,
+      'currency': instance.currency,
+      'description': instance.description,
+      'referenceId': instance.referenceId,
+      'recipientId': instance.recipientId,
+      'senderId': instance.senderId,
+      'completedAt': instance.completedAt?.toIso8601String(),
+      'createdAt': instance.createdAt.toIso8601String(),
+      'metadata': instance.metadata,
+    };
+
+const _$TransactionTypeEnumMap = {
+  TransactionType.credit: 'credit',
+  TransactionType.debit: 'debit',
+  TransactionType.transfer: 'transfer',
+  TransactionType.refund: 'refund',
+};
+
+const _$TransactionStatusEnumMap = {
+  TransactionStatus.pending: 'pending',
+  TransactionStatus.completed: 'completed',
+  TransactionStatus.failed: 'failed',
+  TransactionStatus.cancelled: 'cancelled',
+};

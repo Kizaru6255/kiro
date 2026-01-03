@@ -1,0 +1,35 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'wallet_dto.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$WalletDtoImpl _$$WalletDtoImplFromJson(Map<String, dynamic> json) =>
+    _$WalletDtoImpl(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      balance: (json['balance'] as num).toDouble(),
+      currency: json['currency'] as String? ?? 'INR',
+      isActive: json['isActive'] as bool? ?? true,
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+      metadata: json['metadata'] as Map<String, dynamic>?,
+    );
+
+Map<String, dynamic> _$$WalletDtoImplToJson(_$WalletDtoImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'userId': instance.userId,
+      'balance': instance.balance,
+      'currency': instance.currency,
+      'isActive': instance.isActive,
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
+      'metadata': instance.metadata,
+    };

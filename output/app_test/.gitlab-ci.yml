@@ -1,0 +1,21 @@
+image: cirrusci/flutter:stable
+
+stages:
+  - test
+  - build
+
+test:
+  stage: test
+  script:
+    - flutter pub get
+    - flutter analyze
+    - flutter test
+
+build:
+  stage: build
+  script:
+    - flutter pub get
+    - flutter build apk --release
+  artifacts:
+    paths:
+      - build/
