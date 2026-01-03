@@ -138,3 +138,6 @@ export 'core/localization/localization.dart';
 
 // Routing
 export 'core/routing/routing.dart';
+
+// Config
+export 'core/config/config.dart';

@@ -3,6 +3,8 @@ library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../domain/entities/transaction_entity.dart' as entity;
+
 part 'transaction.freezed.dart';
 part 'transaction.g.dart';
 
@@ -70,6 +72,39 @@ extension TransactionExtension on Transaction {
       TransactionType.transfer => 'Transfer',
       TransactionType.refund => 'Refund',
     };
+  }
+
+  /// Convert to TransactionEntity.
+  entity.TransactionEntity toEntity() {
+    final entityType = switch (type) {
+      TransactionType.credit => entity.TransactionType.credit,
+      TransactionType.debit => entity.TransactionType.debit,
+      TransactionType.transfer => entity.TransactionType.transfer,
+      TransactionType.refund => entity.TransactionType.refund,
+    };
+    
+    final entityStatus = switch (status) {
+      TransactionStatus.pending => entity.TransactionStatus.pending,
+      TransactionStatus.completed => entity.TransactionStatus.completed,
+      TransactionStatus.failed => entity.TransactionStatus.failed,
+      TransactionStatus.cancelled => entity.TransactionStatus.cancelled,
+    };
+    
+    return entity.TransactionEntity(
+      id: id,
+      walletId: walletId,
+      type: entityType,
+      status: entityStatus,
+      amount: amount,
+      currency: currency,
+      description: description,
+      referenceId: referenceId,
+      recipientId: recipientId,
+      senderId: senderId,
+      completedAt: completedAt,
+      createdAt: createdAt,
+      metadata: metadata,
+    );
   }
 }
 

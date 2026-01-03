@@ -5,8 +5,17 @@ import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
 
 import '../config/app_config.dart';
+import '../generator/dependency_validator.dart';
+import '../generator/env_config_generator.dart';
+import '../generator/module_injector.dart';
+import '../generator/module_metadata.dart';
+import '../generator/provider_registry.dart';
+import '../generator/pubspec_updater.dart';
+import '../generator/route_generator.dart';
+import '../generator/test_generator.dart';
 import '../utils/console.dart';
 import '../utils/file_utils.dart';
+import '../utils/process_utils.dart';
 import 'base_command.dart';
 
 /// Command to add modules to existing Kiro app.
@@ -41,14 +50,25 @@ class AddModuleCommand extends BaseCommand {
   @override
   final String description = 'Add a module to the current Kiro project.';
 
-    AddModuleCommand() {
-      argParser.addOption(
+  AddModuleCommand() {
+    argParser
+      ..addOption(
         'project',
         abbr: 'p',
         help: 'Path to the project (default: current directory)',
         defaultsTo: '.',
+      )
+      ..addFlag(
+        'skip-tests',
+        help: 'Skip generating test skeletons',
+        defaultsTo: false,
+      )
+      ..addFlag(
+        'skip-env',
+        help: 'Skip generating environment configs',
+        defaultsTo: false,
       );
-    }
+  }
 
   @override
   Future<int> execute() async {
@@ -102,114 +122,232 @@ class AddModuleCommand extends BaseCommand {
       }
     }
 
+    // Find Kiro root (where modules/ directory is)
+    final kiroRoot = await _findKiroRoot(absolutePath);
+    if (kiroRoot == null) {
+      Console.error('Could not find Kiro root directory (modules/ folder).');
+      Console.hint('Make sure you are running this from a Kiro workspace.');
+      return 1;
+    }
+
     Console.header('Adding ${module.displayName} Module');
     Console.info('Module: ${module.description}');
     Console.blank();
 
-    // TODO: Implement actual module injection
-    Console.step('Creating module structure...');
-    await _createModuleStructure(absolutePath, module);
+    try {
+      // Step 1: Load module metadata
+      Console.step('Loading module metadata...');
+      final modulePath = FileUtils.join(kiroRoot, 'modules', module.name);
+      final moduleMetadata = await ModuleMetadata.fromFile(modulePath);
+      Console.success('Module metadata loaded');
 
-    Console.step('Updating dependencies...');
-    await _updateDependencies(absolutePath, module);
+      // Step 2: Load existing modules
+      Console.step('Loading existing modules...');
+      final existingModules = await _loadExistingModules(absolutePath);
+      Console.success('Found ${existingModules.length} existing module(s)');
 
-    Console.step('Generating boilerplate code...');
-    await _generateModuleCode(absolutePath, module);
+      // Step 3: Validate dependencies
+      Console.step('Validating dependencies...');
+      final coreDependencies = ['kiro_core', 'network', 'storage', 'permissions'];
+      final validationResult = DependencyValidator.validateDependencies(
+        existingModules: existingModules,
+        newModule: moduleMetadata,
+        coreDependencies: coreDependencies,
+      );
 
-    Console.blank();
-    Console.success('${module.displayName} module added successfully!');
-    Console.blank();
-    Console.info('Next steps:');
-    Console.numberedItem(1, 'Run "flutter pub get"');
-    Console.numberedItem(2, 'Import the module in your app');
-    Console.numberedItem(3, 'Configure the module as needed');
-    Console.blank();
+      if (!validationResult.success) {
+        Console.error('Dependency validation failed:');
+        for (final error in validationResult.errors) {
+          Console.error('  • $error');
+        }
+        return 1;
+      }
 
-    return 0;
-  }
+      if (validationResult.warnings.isNotEmpty) {
+        Console.warning('Dependency warnings:');
+        for (final warning in validationResult.warnings) {
+          Console.warning('  • $warning');
+        }
+      }
+      Console.success('Dependencies validated');
 
-  Future<void> _createModuleStructure(String projectPath, KiroModule module) async {
-    final modulePath = FileUtils.join(projectPath, 'lib', 'features', module.name);
-    
-    await FileUtils.ensureDirectory(FileUtils.join(modulePath, 'data', 'models'));
-    await FileUtils.ensureDirectory(FileUtils.join(modulePath, 'data', 'repositories'));
-    await FileUtils.ensureDirectory(FileUtils.join(modulePath, 'data', 'services'));
-    await FileUtils.ensureDirectory(FileUtils.join(modulePath, 'presentation', 'screens'));
-    await FileUtils.ensureDirectory(FileUtils.join(modulePath, 'presentation', 'widgets'));
-    await FileUtils.ensureDirectory(FileUtils.join(modulePath, 'presentation', 'providers'));
-  }
+      // Step 4: Inject module
+      Console.step('Injecting module files...');
+      final injector = ModuleInjector(
+        projectPath: absolutePath,
+        kiroRoot: kiroRoot,
+      );
+      final injectionResult = await injector.injectModule(moduleMetadata);
 
-  Future<void> _updateDependencies(String projectPath, KiroModule module) async {
-    // TODO: Parse pubspec.yaml and add module-specific dependencies
-    // For now, just log what would be added
-    final deps = _getModuleDependencies(module);
-    if (deps.isNotEmpty) {
-      Console.hint('  Would add dependencies: ${deps.join(', ')}');
+      if (!injectionResult.success) {
+        Console.error('Module injection failed:');
+        for (final error in injectionResult.errors) {
+          Console.error('  • $error');
+        }
+        return 1;
+      }
+      Console.success('Module injected successfully');
+
+      // Step 5: Update pubspec.yaml
+      Console.step('Updating dependencies...');
+      final pubspecUpdater = PubspecUpdater(absolutePath);
+      final kiroCoreVersion = moduleMetadata.config['kiro_core_version'] as String?;
+      final pubspecUpdated = await pubspecUpdater.updatePubspec(
+        module: moduleMetadata,
+        kiroCoreVersion: kiroCoreVersion,
+      );
+      if (pubspecUpdated) {
+        Console.success('Dependencies updated');
+      } else {
+        Console.warning('Could not update all dependencies automatically');
+      }
+
+      // Step 6: Generate/Update routes
+      Console.step('Generating routes...');
+      final allModules = [...existingModules, moduleMetadata];
+      final appName = await _getAppName(absolutePath);
+      final routesContent = RouteGenerator.generateRoutes(
+        modules: allModules,
+        appName: appName,
+      );
+      await FileUtils.writeFile(
+        FileUtils.join(absolutePath, 'lib', 'config', 'router.dart'),
+        routesContent,
+      );
+      Console.success('Routes generated');
+
+      // Step 7: Generate/Update provider registry
+      Console.step('Registering providers...');
+      final providersContent = ProviderRegistryGenerator.generateProviderRegistry(
+        modules: allModules,
+        appName: appName,
+      );
+      await FileUtils.writeFile(
+        FileUtils.join(absolutePath, 'lib', 'core', 'providers.dart'),
+        providersContent,
+      );
+      Console.success('Providers registered');
+
+      // Step 8: Generate test skeletons (optional)
+      if (!(argResults!['skip-tests'] as bool)) {
+        Console.step('Generating test skeletons...');
+        final testGenerator = TestGenerator(absolutePath);
+        await testGenerator.generateTestSkeletons(moduleMetadata);
+        Console.success('Test skeletons generated');
+      }
+
+      // Step 9: Generate environment configs (optional)
+      if (!(argResults!['skip-env'] as bool)) {
+        final useFirebase = await _checkFirebaseEnabled(absolutePath);
+        Console.step('Generating environment configs...');
+        final envGenerator = EnvConfigGenerator(
+          projectPath: absolutePath,
+          useFirebase: useFirebase,
+        );
+        await envGenerator.generateEnvConfigs();
+        Console.success('Environment configs generated');
+      }
+
+      // Step 10: Run pub get
+      Console.step('Running flutter pub get...');
+      final pubResult = await ProcessUtils.pubGet(workingDirectory: absolutePath);
+      if (pubResult.success) {
+        Console.success('Dependencies installed');
+      } else {
+        Console.warning('pub get had issues (you can run it manually)');
+      }
+
+      // Success summary
+      Console.blank();
+      Console.success('✓ Module "${module.displayName}" added successfully!');
+      Console.blank();
+      Console.header('Summary');
+      Console.keyValue('Module', module.displayName);
+      Console.keyValue('Routes', '${moduleMetadata.routes.length} route(s) added');
+      Console.keyValue('Providers', '${moduleMetadata.providers.length} provider(s) registered');
+      Console.blank();
+      Console.info('Next steps:');
+      Console.numberedItem(1, 'Review generated routes in lib/config/router.dart');
+      Console.numberedItem(2, 'Review provider registry in lib/core/providers.dart');
+      if (!(argResults!['skip-tests'] as bool)) {
+        Console.numberedItem(3, 'Implement tests in test/modules/${module.name}/');
+      }
+      Console.numberedItem(4, 'Configure module settings in lib/modules/${module.name}/module.yaml');
+      Console.blank();
+
+      return 0;
+    } catch (e, stackTrace) {
+      Console.error('Failed to add module: $e');
+      if (argResults!['verbose'] == true) {
+        Console.hint('Stack trace: $stackTrace');
+      }
+      return 1;
     }
   }
 
-  Future<void> _generateModuleCode(String projectPath, KiroModule module) async {
-    final modulePath = FileUtils.join(projectPath, 'lib', 'features', module.name);
-    
-    // Create barrel file
-    final barrelContent = '''
-/// ${module.displayName} module.
-library;
+  /// Find Kiro root directory.
+  Future<String?> _findKiroRoot(String projectPath) async {
+    // Start from project directory and go up
+    var current = projectPath;
+    var previous = '';
 
-// Data
-export 'data/models/models.dart';
-export 'data/repositories/repositories.dart';
-export 'data/services/services.dart';
+    while (current != previous) {
+      final modulesPath = FileUtils.join(current, 'modules');
+      if (await FileUtils.directoryExists(modulesPath)) {
+        return current;
+      }
+      previous = current;
+      current = FileUtils.normalize(FileUtils.join(current, '..'));
+    }
 
-// Presentation
-export 'presentation/providers/providers.dart';
-export 'presentation/screens/screens.dart';
-export 'presentation/widgets/widgets.dart';
-''';
-    
-    await FileUtils.writeFile(
-      FileUtils.join(modulePath, '${module.name}.dart'),
-      barrelContent,
-    );
+    // Try relative to current working directory
+    final cwd = FileUtils.currentDirectory;
+    var cwdCurrent = cwd;
+    var cwdPrevious = '';
 
-    // Create placeholder barrel files
-    await FileUtils.writeFile(
-      FileUtils.join(modulePath, 'data', 'models', 'models.dart'),
-      '/// ${module.displayName} models.\nlibrary;\n',
-    );
-    await FileUtils.writeFile(
-      FileUtils.join(modulePath, 'data', 'repositories', 'repositories.dart'),
-      '/// ${module.displayName} repositories.\nlibrary;\n',
-    );
-    await FileUtils.writeFile(
-      FileUtils.join(modulePath, 'data', 'services', 'services.dart'),
-      '/// ${module.displayName} services.\nlibrary;\n',
-    );
-    await FileUtils.writeFile(
-      FileUtils.join(modulePath, 'presentation', 'providers', 'providers.dart'),
-      '/// ${module.displayName} providers.\nlibrary;\n',
-    );
-    await FileUtils.writeFile(
-      FileUtils.join(modulePath, 'presentation', 'screens', 'screens.dart'),
-      '/// ${module.displayName} screens.\nlibrary;\n',
-    );
-    await FileUtils.writeFile(
-      FileUtils.join(modulePath, 'presentation', 'widgets', 'widgets.dart'),
-      '/// ${module.displayName} widgets.\nlibrary;\n',
-    );
+    while (cwdCurrent != cwdPrevious) {
+      final modulesPath = FileUtils.join(cwdCurrent, 'modules');
+      if (await FileUtils.directoryExists(modulesPath)) {
+        return cwdCurrent;
+      }
+      cwdPrevious = cwdCurrent;
+      cwdCurrent = FileUtils.normalize(FileUtils.join(cwdCurrent, '..'));
+    }
+
+    return null;
   }
 
-  List<String> _getModuleDependencies(KiroModule module) {
-    return switch (module) {
-      KiroModule.auth => ['firebase_auth', 'google_sign_in'],
-      KiroModule.wallet => [],
-      KiroModule.chat => ['cloud_firestore', 'firebase_storage'],
-      KiroModule.booking => ['table_calendar', 'intl'],
-      KiroModule.payments => ['razorpay_flutter'],
-      KiroModule.notifications => ['firebase_messaging', 'flutter_local_notifications'],
-      KiroModule.tracking => ['google_maps_flutter', 'geolocator'],
-      KiroModule.profile => ['image_picker', 'cached_network_image'],
-    };
+  /// Load existing modules from project.
+  Future<List<ModuleMetadata>> _loadExistingModules(String projectPath) async {
+    final modulesDir = FileUtils.join(projectPath, 'lib', 'modules');
+    if (!await FileUtils.directoryExists(modulesDir)) {
+      return [];
+    }
+
+    return await ModuleMetadata.loadAll(modulesDir);
+  }
+
+  /// Get app name from pubspec.yaml.
+  Future<String> _getAppName(String projectPath) async {
+    try {
+      final pubspecPath = FileUtils.join(projectPath, 'pubspec.yaml');
+      final content = await FileUtils.readFile(pubspecPath);
+      // Simple regex extraction
+      final match = RegExp(r'^name:\s*(\w+)', multiLine: true).firstMatch(content);
+      return match?.group(1) ?? 'app';
+    } catch (_) {
+      return 'app';
+    }
+  }
+
+  /// Check if Firebase is enabled in project.
+  Future<bool> _checkFirebaseEnabled(String projectPath) async {
+    try {
+      final pubspecPath = FileUtils.join(projectPath, 'pubspec.yaml');
+      final content = await FileUtils.readFile(pubspecPath);
+      return content.contains('firebase_core');
+    } catch (_) {
+      return false;
+    }
   }
 }
-

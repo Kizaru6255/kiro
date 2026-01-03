@@ -9,9 +9,18 @@ String generatePubspec({
   required String stateManagement,
   required List<String> modules,
   required bool useFirebase,
-  String? kiroCorePath,
+  String? kiroCorePath, // Deprecated - kept for compatibility
 }) {
   final dependencies = StringBuffer();
+  final addedDeps = <String>{};
+  
+  // Helper to add dependency only if not already added
+  void addDep(String name, String version) {
+    if (!addedDeps.contains(name)) {
+      dependencies.writeln('  $name: $version');
+      addedDeps.add(name);
+    }
+  }
   
   // Core dependencies
   dependencies.writeln('  # Core');
@@ -23,55 +32,36 @@ String generatePubspec({
   dependencies.writeln('  # State Management');
   switch (stateManagement) {
     case 'riverpod':
-      dependencies.writeln('  flutter_riverpod: ^2.4.9');
-      dependencies.writeln('  riverpod_annotation: ^2.3.3');
+      addDep('flutter_riverpod', '^2.4.9');
+      addDep('riverpod_annotation', '^2.3.3');
       break;
     case 'bloc':
-      dependencies.writeln('  flutter_bloc: ^8.1.3');
-      dependencies.writeln('  bloc: ^8.1.2');
-      dependencies.writeln('  equatable: ^2.0.5');
+      addDep('flutter_bloc', '^8.1.3');
+      addDep('bloc', '^8.1.2');
+      addDep('equatable', '^2.0.5');
       break;
     case 'provider':
-      dependencies.writeln('  provider: ^6.1.1');
+      addDep('provider', '^6.1.1');
       break;
   }
   dependencies.writeln();
   
   // Routing
   dependencies.writeln('  # Routing');
-  dependencies.writeln('  go_router: ^14.2.0');
+  addDep('go_router', '^14.2.0');
   dependencies.writeln();
   
-  // Networking
-  dependencies.writeln('  # Networking');
-  dependencies.writeln('  dio: ^5.4.0');
+  // Network & Storage dependencies (replacing kiro_core)
+  dependencies.writeln('  # Network & Storage');
+  addDep('dio', '^5.4.0');
+  addDep('flutter_secure_storage', '^9.0.0');
+  addDep('shared_preferences', '^2.2.2');
   dependencies.writeln();
-  
-  // Storage
-  dependencies.writeln('  # Storage');
-  dependencies.writeln('  shared_preferences: ^2.2.2');
-  dependencies.writeln('  flutter_secure_storage: ^9.0.0');
-  dependencies.writeln();
-  
-  // Utils
-  dependencies.writeln('  # Utilities');
-  dependencies.writeln('  intl: ^0.19.0');
-  dependencies.writeln('  logger: ^2.0.2+1');
-  dependencies.writeln('  connectivity_plus: ^6.0.3');
-  dependencies.writeln();
-  
-  // Kiro Core (required for modules)
-  if (modules.isNotEmpty && kiroCorePath != null) {
-    dependencies.writeln('  # Kiro Core');
-    dependencies.writeln('  kiro_core:');
-    dependencies.writeln('    path: $kiroCorePath');
-    dependencies.writeln();
-  }
   
   // Firebase (if enabled)
   if (useFirebase) {
     dependencies.writeln('  # Firebase');
-    dependencies.writeln('  firebase_core: ^2.24.2');
+    addDep('firebase_core', '^2.24.2');
   }
   
   // Module-specific dependencies
@@ -79,28 +69,28 @@ String generatePubspec({
     dependencies.writeln();
     dependencies.writeln('  # Auth Module');
     if (useFirebase) {
-      dependencies.writeln('  firebase_auth: ^4.16.0');
+      addDep('firebase_auth', '^4.16.0');
     }
-    dependencies.writeln('  google_sign_in: ^6.2.1');
+    addDep('google_sign_in', '^6.2.1');
   }
   
   if (modules.contains('chat')) {
     dependencies.writeln();
     dependencies.writeln('  # Chat Module');
     if (useFirebase) {
-      dependencies.writeln('  cloud_firestore: ^4.13.6');
-      dependencies.writeln('  firebase_storage: ^11.5.6');
+      addDep('cloud_firestore', '^4.13.6');
+      addDep('firebase_storage', '^11.5.6');
     }
-    dependencies.writeln('  cached_network_image: ^3.3.0');
+    addDep('cached_network_image', '^3.3.0');
   }
   
   if (modules.contains('notifications')) {
     dependencies.writeln();
     dependencies.writeln('  # Notifications Module');
     if (useFirebase) {
-      dependencies.writeln('  firebase_messaging: ^14.7.9');
+      addDep('firebase_messaging', '^14.7.9');
     }
-    dependencies.writeln('  flutter_local_notifications: ^17.0.0');
+    addDep('flutter_local_notifications', '^17.0.0');
   }
   
   if (modules.contains('payments')) {
@@ -112,21 +102,21 @@ String generatePubspec({
   if (modules.contains('tracking')) {
     dependencies.writeln();
     dependencies.writeln('  # Tracking/Maps Module');
-    dependencies.writeln('  google_maps_flutter: ^2.5.3');
-    dependencies.writeln('  geolocator: ^11.0.0');
+    addDep('google_maps_flutter', '^2.5.3');
+    addDep('geolocator', '^11.0.0');
   }
   
   if (modules.contains('booking')) {
     dependencies.writeln();
     dependencies.writeln('  # Booking Module');
-    dependencies.writeln('  table_calendar: ^3.0.9');
+    addDep('table_calendar', '^3.0.9');
   }
   
   if (modules.contains('profile')) {
     dependencies.writeln();
     dependencies.writeln('  # Profile Module');
-    dependencies.writeln('  image_picker: ^1.0.5');
-    dependencies.writeln('  cached_network_image: ^3.3.0');
+    addDep('image_picker', '^1.0.5');
+    addDep('cached_network_image', '^3.3.0'); // Will be skipped if already added by chat module
   }
 
   // Dev dependencies

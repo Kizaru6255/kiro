@@ -1,18 +1,18 @@
-/// Notifications module for Kiro.
+/// Notifications module - public API exports.
 library;
 
-// Models
-export 'models/notification.dart';
+// Domain (entities, repositories, usecases)
+export 'domain/entities/notification_entity.dart';
+export 'domain/repositories/notification_repository.dart';
+export 'domain/usecases/get_notifications_usecase.dart';
+export 'domain/usecases/mark_as_read_usecase.dart';
+export 'domain/usecases/mark_all_as_read_usecase.dart';
 
-// Services
-export 'services/notification_service.dart';
+// Presentation (providers, screens, widgets)
+export 'presentation/providers/notification_provider.dart';
+export 'presentation/models/notification_state.dart';
+export 'presentation/screens/notifications_screen.dart';
+export 'presentation/widgets/notification_item.dart';
 
-// Providers
-export 'providers/notification_provider.dart';
-
-// Screens
-export 'screens/notifications_screen.dart';
-
-// Widgets
-export 'widgets/notification_item.dart';
-
+// Note: Data layer (DTOs, datasources, repository implementations) 
+// are NOT exported - they are internal implementation details.

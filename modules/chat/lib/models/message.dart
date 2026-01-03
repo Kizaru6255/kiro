@@ -3,6 +3,8 @@ library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../domain/entities/message_entity.dart' as entity;
+
 part 'message.freezed.dart';
 part 'message.g.dart';
 
@@ -79,6 +81,42 @@ extension MessageExtension on Message {
       return '${(fileSize! / 1024).toStringAsFixed(1)}KB';
     }
     return '${(fileSize! / (1024 * 1024)).toStringAsFixed(1)}MB';
+  }
+
+  /// Convert to MessageEntity.
+  entity.MessageEntity toEntity() {
+    // Convert enum types
+    final entityType = switch (type) {
+      MessageType.text => entity.MessageType.text,
+      MessageType.image => entity.MessageType.image,
+      MessageType.file => entity.MessageType.file,
+      MessageType.audio => entity.MessageType.audio,
+      MessageType.video => entity.MessageType.video,
+    };
+    
+    final entityStatus = switch (status) {
+      MessageStatus.sending => entity.MessageStatus.sending,
+      MessageStatus.sent => entity.MessageStatus.sent,
+      MessageStatus.delivered => entity.MessageStatus.delivered,
+      MessageStatus.read => entity.MessageStatus.read,
+      MessageStatus.failed => entity.MessageStatus.failed,
+    };
+    
+    return entity.MessageEntity(
+      id: id,
+      chatId: chatId,
+      senderId: senderId,
+      content: content,
+      type: entityType,
+      status: entityStatus,
+      fileUrl: fileUrl,
+      fileName: fileName,
+      fileSize: fileSize,
+      thumbnailUrl: thumbnailUrl,
+      readAt: readAt,
+      createdAt: createdAt,
+      metadata: metadata,
+    );
   }
 }
 

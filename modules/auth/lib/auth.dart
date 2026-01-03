@@ -1,42 +1,25 @@
-/// Auth module for Kiro.
-///
-/// Provides complete authentication functionality including:
-/// - Email/Password authentication
-/// - Phone OTP authentication
-/// - Social login (Google, Apple)
-/// - Biometric authentication
-/// - Session management
-///
-/// ## Quick Start
-///
-/// ```dart
-/// import 'package:auth/auth.dart';
-///
-/// // In your app
-/// final authProvider = AuthProvider();
-/// await authProvider.login(email: 'user@example.com', password: 'password');
-/// ```
+/// Auth module - public API exports.
+/// 
+/// This is the main entry point for the auth module.
+/// Only exports public APIs that other modules/apps should use.
 library;
 
-// Models
-export 'models/user.dart';
-export 'models/auth_state.dart';
+// Domain (entities, repositories, usecases)
+export 'domain/entities/user_entity.dart';
+export 'domain/repositories/auth_repository.dart';
+export 'domain/usecases/login_usecase.dart';
+export 'domain/usecases/signup_usecase.dart';
 
-// Services
-export 'services/auth_service.dart';
-export 'services/otp_service.dart';
+// Presentation (providers, screens, widgets)
+export 'presentation/providers/auth_provider.dart';
+export 'presentation/models/auth_state.dart';
+export 'presentation/screens/login_screen.dart';
+export 'presentation/screens/signup_screen.dart';
+export 'presentation/screens/forgot_password_screen.dart';
+export 'presentation/screens/verify_otp_screen.dart';
+export 'presentation/widgets/auth_form_field.dart';
+export 'presentation/widgets/biometric_button.dart';
+export 'presentation/widgets/social_login_button.dart';
 
-// Providers
-export 'providers/auth_provider.dart';
-
-// Screens
-export 'screens/login_screen.dart';
-export 'screens/signup_screen.dart';
-export 'screens/forgot_password_screen.dart';
-export 'screens/verify_otp_screen.dart';
-
-// Widgets
-export 'widgets/auth_form_field.dart';
-export 'widgets/social_login_button.dart';
-export 'widgets/biometric_button.dart';
-
+// Note: Data layer (DTOs, datasources, repository implementations) 
+// are NOT exported - they are internal implementation details.

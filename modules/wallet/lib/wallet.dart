@@ -1,43 +1,23 @@
-/// Wallet module for Kiro.
-///
-/// Provides digital wallet functionality including:
-/// - Balance management
-/// - Transaction history
-/// - Add money
-/// - Send/receive money
-/// - Transaction details
-///
-/// ## Quick Start
-///
-/// ```dart
-/// import 'package:wallet/wallet.dart';
-///
-/// // In your app
-/// final walletProvider = WalletProvider();
-/// final balance = await walletProvider.getBalance();
-/// ```
+/// Wallet module - public API exports.
 library;
 
-// Models
-export 'models/wallet.dart';
-export 'models/transaction.dart';
+// Domain (entities, repositories, usecases)
+export 'domain/entities/wallet_entity.dart';
+export 'domain/entities/transaction_entity.dart';
+export 'domain/repositories/wallet_repository.dart';
+export 'domain/usecases/get_wallet_usecase.dart';
+export 'domain/usecases/add_money_usecase.dart';
 
-// Services
-export 'services/wallet_service.dart';
-export 'services/transaction_service.dart';
+// Presentation (providers, screens, widgets)
+export 'presentation/providers/wallet_provider.dart';
+export 'presentation/models/wallet_state.dart';
+export 'presentation/screens/wallet_screen.dart';
+export 'presentation/screens/add_money_screen.dart';
+export 'presentation/screens/transactions_screen.dart';
+export 'presentation/screens/transaction_detail_screen.dart';
+export 'presentation/widgets/balance_card.dart';
+export 'presentation/widgets/transaction_item.dart';
+export 'presentation/widgets/amount_input_field.dart';
 
-// Providers
-export 'providers/wallet_provider.dart';
-export 'providers/transaction_provider.dart';
-
-// Screens
-export 'screens/wallet_screen.dart';
-export 'screens/add_money_screen.dart';
-export 'screens/transactions_screen.dart';
-export 'screens/transaction_detail_screen.dart';
-
-// Widgets
-export 'widgets/balance_card.dart';
-export 'widgets/transaction_item.dart';
-export 'widgets/amount_input_field.dart';
-
+// Note: Data layer (DTOs, datasources, repository implementations) 
+// are NOT exported - they are internal implementation details.

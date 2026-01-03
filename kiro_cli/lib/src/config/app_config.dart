@@ -33,10 +33,11 @@ enum Platform {
 }
 
 /// State management options.
+/// 
+/// NOTE: Currently only Riverpod is supported.
+/// Other state management solutions may be added in future versions.
 enum StateManagement {
-  riverpod('Riverpod', 'Recommended - Compile-safe, testable'),
-  bloc('BLoC', 'Popular - Event-driven architecture'),
-  provider('Provider', 'Simple - Good for small apps');
+  riverpod('Riverpod', 'Compile-safe, testable state management');
 
   const StateManagement(this.displayName, this.description);
 
@@ -104,6 +105,15 @@ class AppConfig {
   /// Output directory.
   final String outputDirectory;
 
+  /// Include splash screen.
+  final bool includeSplash;
+
+  /// Include onboarding screens.
+  final bool includeOnboarding;
+
+  /// Bottom navigation tabs (module names).
+  final List<String> bottomNavTabs;
+
   const AppConfig({
     required this.appName,
     required this.packageName,
@@ -120,6 +130,9 @@ class AppConfig {
     this.useFirebase = false,
     this.initGit = true,
     required this.outputDirectory,
+    this.includeSplash = false,
+    this.includeOnboarding = false,
+    this.bottomNavTabs = const [],
   });
 
   /// Create default config.
@@ -138,6 +151,9 @@ class AppConfig {
       stateManagement: StateManagement.riverpod,
       primaryColor: '#6366F1',
       outputDirectory: outputDirectory,
+      includeSplash: false,
+      includeOnboarding: false,
+      bottomNavTabs: [],
     );
   }
 
@@ -158,6 +174,9 @@ class AppConfig {
         'use_firebase': useFirebase,
         'init_git': initGit,
         'output_directory': outputDirectory,
+        'include_splash': includeSplash,
+        'include_onboarding': includeOnboarding,
+        'bottom_nav_tabs': bottomNavTabs,
       };
 
   /// Create from JSON.
@@ -190,6 +209,9 @@ class AppConfig {
       useFirebase: json['use_firebase'] as bool? ?? false,
       initGit: json['init_git'] as bool? ?? true,
       outputDirectory: json['output_directory'] as String,
+      includeSplash: json['include_splash'] as bool? ?? false,
+      includeOnboarding: json['include_onboarding'] as bool? ?? false,
+      bottomNavTabs: (json['bottom_nav_tabs'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
 
@@ -210,6 +232,9 @@ class AppConfig {
     bool? useFirebase,
     bool? initGit,
     String? outputDirectory,
+    bool? includeSplash,
+    bool? includeOnboarding,
+    List<String>? bottomNavTabs,
   }) {
     return AppConfig(
       appName: appName ?? this.appName,
@@ -227,6 +252,9 @@ class AppConfig {
       useFirebase: useFirebase ?? this.useFirebase,
       initGit: initGit ?? this.initGit,
       outputDirectory: outputDirectory ?? this.outputDirectory,
+      includeSplash: includeSplash ?? this.includeSplash,
+      includeOnboarding: includeOnboarding ?? this.includeOnboarding,
+      bottomNavTabs: bottomNavTabs ?? this.bottomNavTabs,
     );
   }
 

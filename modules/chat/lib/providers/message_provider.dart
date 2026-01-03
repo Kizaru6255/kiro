@@ -98,7 +98,7 @@ class MessageNotifier extends StateNotifier<AsyncValue<List<Message>>> {
 }
 
 /// Message notifier provider.
-final messageNotifierProvider =
+final messageProvider =
     StateNotifierProvider.family<MessageNotifier, AsyncValue<List<Message>>, String>(
   (ref, chatId) {
     final service = ref.watch(messageServiceProvider);

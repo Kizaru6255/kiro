@@ -4,6 +4,7 @@ library;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'message.dart';
+import '../domain/entities/chat_entity.dart' as entity;
 
 part 'chat.freezed.dart';
 part 'chat.g.dart';
@@ -49,6 +50,28 @@ extension ChatExtension on Chat {
     final otherParticipants = participantIds.where((id) => id != currentUserId);
     if (otherParticipants.isEmpty) return name;
     return name; // Should be replaced with actual participant name
+  }
+
+  /// Convert to ChatEntity.
+  entity.ChatEntity toEntity() {
+    final entityType = switch (type) {
+      ChatType.direct => entity.ChatType.direct,
+      ChatType.group => entity.ChatType.group,
+    };
+    
+    return entity.ChatEntity(
+      id: id,
+      type: entityType,
+      name: name,
+      description: description,
+      imageUrl: imageUrl,
+      participantIds: participantIds,
+      lastMessage: lastMessage?.toEntity(),
+      unreadCount: unreadCount,
+      lastActivityAt: lastActivityAt,
+      createdAt: createdAt,
+      metadata: metadata,
+    );
   }
 }
 

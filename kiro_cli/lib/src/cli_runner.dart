@@ -17,7 +17,11 @@ class KiroCliRunner extends CommandRunner<int> {
     // Add commands
     addCommand(CreateCommand());
     addCommand(AddCommand());
+    addCommand(RemoveCommand());
+    addCommand(UpdateCommand());
     addCommand(DoctorCommand());
+    addCommand(RegistryCommand());
+    addCommand(ExplainCommand());
 
     // Global flags
     argParser
@@ -78,10 +82,12 @@ class KiroCliRunner extends CommandRunner<int> {
     Console.writeLine('Run "kiro <command> --help" for more information about a command.');
     Console.blank();
     Console.writeLine('Examples:');
-    Console.writeLine('  kiro create app           Create a new Kiro app interactively');
-    Console.writeLine('  kiro create app -n MyApp  Create a new app with name');
-    Console.writeLine('  kiro add module auth      Add auth module to current project');
-    Console.writeLine('  kiro doctor               Check your development environment');
+    Console.writeLine('  kiro create app              Create a new Kiro app interactively');
+    Console.writeLine('  kiro create blueprint ecommerce  Create e-commerce app');
+    Console.writeLine('  kiro add module auth         Add auth module to current project');
+    Console.writeLine('  kiro registry search auth     Search modules in registry');
+    Console.writeLine('  kiro explain module auth      Explain module structure');
+    Console.writeLine('  kiro doctor                  Check your development environment');
   }
 }
 

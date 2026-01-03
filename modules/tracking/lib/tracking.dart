@@ -1,22 +1,15 @@
-/// Tracking module for Kiro.
+/// Tracking module - public API exports.
 library;
 
-// Models
-export 'models/location.dart';
-export 'models/tracking_session.dart';
+// Domain (entities, repositories, usecases)
+export 'domain/entities/location_entity.dart';
+export 'domain/entities/tracking_session_entity.dart';
+export 'domain/repositories/tracking_repository.dart';
 
-// Services
-export 'services/location_service.dart';
-export 'services/tracking_service.dart';
+// Presentation (providers, screens, widgets)
+export 'presentation/screens/tracking_screen.dart';
+export 'presentation/screens/map_screen.dart';
+export 'presentation/widgets/location_card.dart';
 
-// Providers
-export 'providers/location_provider.dart';
-export 'providers/tracking_provider.dart';
-
-// Screens
-export 'screens/tracking_screen.dart';
-export 'screens/map_screen.dart';
-
-// Widgets
-export 'widgets/location_card.dart';
-
+// Note: Data layer (DTOs, datasources, repository implementations) 
+// are NOT exported - they are internal implementation details.

@@ -8,7 +8,7 @@ version: 1.0.0
 kiro_core_version: ^0.1.0
 kiro_cli_version: ^0.1.0
 
-# Dependencies
+# Package dependencies (added to pubspec.yaml)
 dependencies:
   - name: firebase_auth
     version: ^4.16.0
@@ -19,32 +19,44 @@ dependencies:
   - name: flutter_secure_storage
     version: ^9.0.0
 
+# Core dependencies (from kiro_core)
+core_dependencies:
+  - network
+  - storage
+  - permissions
+
 # Permissions
 permissions:
   - camera  # For profile picture
   - photos  # For profile picture
 
-# Routes
+# Routes (auto-generated into router.dart)
 routes:
   - path: /login
     name: login
-    builder: LoginScreen
+    screen: LoginScreen
+    requires_auth: false
   - path: /signup
     name: signup
-    builder: SignupScreen
+    screen: SignupScreen
+    requires_auth: false
   - path: /forgot-password
     name: forgotPassword
-    builder: ForgotPasswordScreen
+    screen: ForgotPasswordScreen
+    requires_auth: false
   - path: /verify-otp
     name: verifyOtp
-    builder: VerifyOtpScreen
+    screen: VerifyOtpScreen
+    requires_auth: false
 
-# Providers
+# Providers (Riverpod providers to register)
 providers:
-  - AuthProvider
-  - AuthState
+  - name: AuthProvider
+    path: providers/auth_provider.dart
+  - name: AuthState
+    path: providers/auth_provider.dart
 
-# Configuration
+# Configuration options
 config:
   enable_biometric:
     type: bool

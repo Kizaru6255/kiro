@@ -106,6 +106,18 @@ class PlaceholderEngine {
     return true;
   }
 
+  /// Simple placeholder replacement (for __PLACEHOLDER__ style).
+  static String replacePlaceholders(
+    String content,
+    Map<String, String> replacements,
+  ) {
+    var result = content;
+    for (final entry in replacements.entries) {
+      result = result.replaceAll('__${entry.key}__', entry.value);
+    }
+    return result;
+  }
+
   /// Extract all placeholders from template.
   static Set<String> extractPlaceholders(String template) {
     final placeholders = <String>{};

@@ -1,41 +1,22 @@
-/// Booking module for Kiro.
-///
-/// Provides appointment booking functionality including:
-/// - Calendar view
-/// - Time slot selection
-/// - Create bookings
-/// - View booking history
-/// - Cancel/modify bookings
-///
-/// ## Quick Start
-///
-/// ```dart
-/// import 'package:booking/booking.dart';
-///
-/// // In your app
-/// final bookingProvider = BookingProvider();
-/// ```
+/// Booking module - public API exports.
 library;
 
-// Models
-export 'models/booking.dart';
-export 'models/time_slot.dart';
+// Domain (entities, repositories, usecases)
+export 'domain/entities/booking_entity.dart';
+export 'domain/entities/time_slot_entity.dart';
+export 'domain/repositories/booking_repository.dart';
+export 'domain/usecases/get_bookings_usecase.dart';
+export 'domain/usecases/create_booking_usecase.dart';
 
-// Services
-export 'services/booking_service.dart';
-export 'services/time_slot_service.dart';
+// Presentation (providers, screens, widgets)
+export 'presentation/providers/booking_provider.dart';
+export 'presentation/models/booking_state.dart';
+export 'presentation/screens/bookings_screen.dart';
+export 'presentation/screens/create_booking_screen.dart';
+export 'presentation/screens/booking_detail_screen.dart';
+export 'presentation/widgets/booking_item.dart';
+export 'presentation/widgets/booking_calendar.dart';
+export 'presentation/widgets/time_slot_picker.dart';
 
-// Providers
-export 'providers/booking_provider.dart';
-export 'providers/time_slot_provider.dart';
-
-// Screens
-export 'screens/bookings_screen.dart';
-export 'screens/create_booking_screen.dart';
-export 'screens/booking_detail_screen.dart';
-
-// Widgets
-export 'widgets/booking_calendar.dart';
-export 'widgets/time_slot_picker.dart';
-export 'widgets/booking_item.dart';
-
+// Note: Data layer (DTOs, datasources, repository implementations) 
+// are NOT exported - they are internal implementation details.

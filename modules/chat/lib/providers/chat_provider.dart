@@ -22,7 +22,7 @@ final chatsProvider = FutureProvider<List<Chat>>((ref) async {
 });
 
 /// Single chat provider.
-final chatProvider = FutureProvider.family<Chat, String>((ref, chatId) async {
+final singleChatProvider = FutureProvider.family<Chat, String>((ref, chatId) async {
   final service = ref.watch(chatServiceProvider);
   final result = await service.getChat(chatId);
   return result.fold(
@@ -85,7 +85,7 @@ class ChatNotifier extends StateNotifier<AsyncValue<List<Chat>>> {
 }
 
 /// Chat notifier provider.
-final chatNotifierProvider =
+final chatProvider =
     StateNotifierProvider<ChatNotifier, AsyncValue<List<Chat>>>((ref) {
   final service = ref.watch(chatServiceProvider);
   return ChatNotifier(service);

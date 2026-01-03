@@ -15,18 +15,8 @@ String generateMain({
   imports.writeln("import 'package:flutter/material.dart';");
   imports.writeln("import 'package:flutter/foundation.dart';");
   
-  // State management imports
-  switch (stateManagement) {
-    case 'riverpod':
-      imports.writeln("import 'package:flutter_riverpod/flutter_riverpod.dart';");
-      break;
-    case 'bloc':
-      imports.writeln("import 'package:flutter_bloc/flutter_bloc.dart';");
-      break;
-    case 'provider':
-      imports.writeln("import 'package:provider/provider.dart';");
-      break;
-  }
+  // State management imports (Riverpod only)
+  imports.writeln("import 'package:flutter_riverpod/flutter_riverpod.dart';");
   
   // Firebase import
   if (useFirebase) {
@@ -63,36 +53,12 @@ String generateMain({
   initialization.writeln('  // Initialize services');
   initialization.writeln('  await AppConfig.initialize();');
   
-  // Wrapper based on state management
-  switch (stateManagement) {
-    case 'riverpod':
-      wrapper.writeln('  runApp(');
-      wrapper.writeln('    const ProviderScope(');
-      wrapper.writeln('      child: ${_toPascalCase(appName)}App(),');
-      wrapper.writeln('    ),');
-      wrapper.writeln('  );');
-      break;
-    case 'bloc':
-      wrapper.writeln('  runApp(');
-      wrapper.writeln('    MultiBlocProvider(');
-      wrapper.writeln('      providers: [');
-      wrapper.writeln('        // Add your BlocProviders here');
-      wrapper.writeln('      ],');
-      wrapper.writeln('      child: const ${_toPascalCase(appName)}App(),');
-      wrapper.writeln('    ),');
-      wrapper.writeln('  );');
-      break;
-    case 'provider':
-      wrapper.writeln('  runApp(');
-      wrapper.writeln('    MultiProvider(');
-      wrapper.writeln('      providers: [');
-      wrapper.writeln('        // Add your providers here');
-      wrapper.writeln('      ],');
-      wrapper.writeln('      child: const ${_toPascalCase(appName)}App(),');
-      wrapper.writeln('    ),');
-      wrapper.writeln('  );');
-      break;
-  }
+  // Wrapper (Riverpod ProviderScope)
+  wrapper.writeln('  runApp(');
+  wrapper.writeln('    const ProviderScope(');
+  wrapper.writeln('      child: ${_toPascalCase(appName)}App(),');
+  wrapper.writeln('    ),');
+  wrapper.writeln('  );');
 
   return '''
 $imports

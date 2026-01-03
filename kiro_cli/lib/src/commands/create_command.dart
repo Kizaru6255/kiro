@@ -4,7 +4,9 @@ library;
 import 'package:args/command_runner.dart';
 
 import '../config/app_config.dart';
+import '../generator/blueprint_manager.dart';
 import '../generator/project_generator.dart';
+import '../generator/sample_app_generator.dart';
 import '../utils/console.dart';
 import '../utils/file_utils.dart';
 import 'base_command.dart';
@@ -88,10 +90,33 @@ class CreateAppCommand extends BaseCommand {
         defaultsTo: true,
       )
       ..addFlag(
+        'splash',
+        help: 'Include splash screen',
+        defaultsTo: false,
+      )
+      ..addFlag(
+        'onboarding',
+        help: 'Include onboarding screens',
+        defaultsTo: false,
+      )
+      ..addMultiOption(
+        'bottom-nav',
+        help: 'Bottom navigation tabs (e.g., chat,wallet,profile). Home is always included.',
+      )
+      ..addFlag(
         'interactive',
         abbr: 'i',
         help: 'Run in interactive mode',
         defaultsTo: true,
+      )
+      ..addFlag(
+        'sample',
+        help: 'Generate a sample app with pre-configured modules',
+        defaultsTo: false,
+      )
+      ..addOption(
+        'blueprint',
+        help: 'Use a blueprint template (ecommerce, fintech, saas, social, healthcare)',
       );
   }
 
@@ -151,8 +176,40 @@ class CreateAppCommand extends BaseCommand {
 
     // Generate project
     Console.blank();
-    Console.header('Generating Project');
+    final isSample = argResults!['sample'] as bool;
+    final blueprintName = argResults!['blueprint'] as String?;
+    
+    if (blueprintName != null) {
+      Console.header('Generating from Blueprint');
+      final success = await BlueprintManager.generateFromBlueprint(
+        blueprintName: blueprintName,
+        baseConfig: config,
+      );
+      
+      if (success) {
+        Console.complete(config.projectDirName);
+        return 0;
+      } else {
+        Console.error('Failed to generate from blueprint.');
+        return 1;
+      }
+    }
+    
+    if (isSample) {
+      Console.header('Generating Sample App');
+      final sampleGenerator = SampleAppGenerator(config);
+      final success = await sampleGenerator.generate();
+      
+      if (success) {
+        Console.complete(config.projectDirName);
+        return 0;
+      } else {
+        Console.error('Failed to generate sample app.');
+        return 1;
+      }
+    }
 
+    Console.header('Generating Project');
     final generator = ProjectGenerator(config);
     final success = await generator.generate();
 
@@ -216,19 +273,10 @@ class CreateAppCommand extends BaseCommand {
       platforms.addAll([Platform.android, Platform.ios]);
     }
 
-    // State Management
+    // State Management (Riverpod only)
     Console.subheader('State Management');
-    Console.info('Select state management:');
-    for (var i = 0; i < StateManagement.values.length; i++) {
-      final sm = StateManagement.values[i];
-      Console.hint('  ${i + 1}. ${sm.displayName} - ${sm.description}');
-    }
-    
-    final stateInput = prompt('Choice', defaultValue: '1') ?? '1';
-    final stateIndex = int.tryParse(stateInput) ?? 1;
-    final stateManagement = StateManagement.values[
-      (stateIndex - 1).clamp(0, StateManagement.values.length - 1)
-    ];
+    Console.info('Using Riverpod (compile-safe state management)');
+    final stateManagement = StateManagement.riverpod;
 
     // Modules
     Console.subheader('Modules');
@@ -263,6 +311,38 @@ class CreateAppCommand extends BaseCommand {
     final useFirebase = confirm('Include Firebase setup?');
     final initGit = confirm('Initialize Git repository?', defaultValue: true);
 
+    // App Flow Options
+    Console.subheader('App Flow Configuration');
+    final includeSplash = confirm('Include Splash Screen?', defaultValue: false);
+    final includeOnboarding = confirm('Include Onboarding Screens?', defaultValue: false);
+    
+    // Bottom Navigation Tabs
+    final bottomNavTabs = <String>['home']; // Home is always included
+    if (modules.isNotEmpty) {
+      Console.info('Select modules for bottom navigation (comma-separated):');
+      Console.hint('  Available modules: ${modules.map((m) => m.name).join(', ')}');
+      Console.hint('  Note: Home is always included. Notifications will appear in AppBar.');
+      
+      final navInput = prompt('Bottom nav modules (e.g., chat,profile)', defaultValue: '') ?? '';
+      if (navInput.isNotEmpty) {
+        final selectedNavModules = navInput.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+        // Validate that selected modules are actually in the modules list
+        for (final navModule in selectedNavModules) {
+          if (modules.any((m) => m.name == navModule)) {
+            bottomNavTabs.add(navModule);
+          }
+        }
+      } else {
+        // Default: add chat and profile if they exist
+        if (modules.contains(KiroModule.chat)) {
+          bottomNavTabs.add('chat');
+        }
+        if (modules.contains(KiroModule.profile)) {
+          bottomNavTabs.add('profile');
+        }
+      }
+    }
+
     // Output
     final outputDir = prompt(
       'Output directory',
@@ -284,6 +364,9 @@ class CreateAppCommand extends BaseCommand {
       useFirebase: useFirebase,
       initGit: initGit,
       outputDirectory: FileUtils.absolute(outputDir),
+      includeSplash: includeSplash,
+      includeOnboarding: includeOnboarding,
+      bottomNavTabs: bottomNavTabs,
     );
   }
 
@@ -354,6 +437,9 @@ class CreateAppCommand extends BaseCommand {
     final color = argResults!['color'] as String;
     final firebase = argResults!['firebase'] as bool;
     final git = argResults!['git'] as bool;
+    final splash = argResults!['splash'] as bool;
+    final onboarding = argResults!['onboarding'] as bool;
+    final bottomNavInput = argResults!['bottom-nav'] as List<String>? ?? [];
 
     final platforms = platformNames
         .map((p) => Platform.values.firstWhere(
@@ -377,6 +463,29 @@ class CreateAppCommand extends BaseCommand {
     // Generate validated package name
     final validatedPackageName = AppConfig.generatePackageName(appName, org);
     
+    // Bottom nav tabs (home is always included)
+    final bottomNavTabs = <String>['home'];
+    if (bottomNavInput.isNotEmpty) {
+      // Use provided bottom nav tabs
+      for (final tab in bottomNavInput) {
+        final tabName = tab.trim().toLowerCase();
+        if (tabName.isNotEmpty && tabName != 'home') {
+          // Validate that the module exists
+          if (modules.any((m) => m.name == tabName)) {
+            bottomNavTabs.add(tabName);
+          }
+        }
+      }
+    } else {
+      // Default: add chat and profile if they exist
+      if (modules.contains(KiroModule.chat)) {
+        bottomNavTabs.add('chat');
+      }
+      if (modules.contains(KiroModule.profile)) {
+        bottomNavTabs.add('profile');
+      }
+    }
+    
     return AppConfig(
       appName: appName,
       packageName: validatedPackageName,
@@ -389,6 +498,9 @@ class CreateAppCommand extends BaseCommand {
       useFirebase: firebase,
       initGit: git,
       outputDirectory: FileUtils.absolute(outputDir),
+      includeSplash: splash,
+      includeOnboarding: onboarding,
+      bottomNavTabs: bottomNavTabs,
     );
   }
 }

@@ -1,41 +1,17 @@
-/// Chat module for Kiro.
-///
-/// Provides real-time messaging functionality including:
-/// - One-on-one chats
-/// - Group chats
-/// - Text messages
-/// - Image sharing
-/// - File sharing
-/// - Message status (sent, delivered, read)
-///
-/// ## Quick Start
-///
-/// ```dart
-/// import 'package:chat/chat.dart';
-///
-/// // In your app
-/// final chatProvider = ChatProvider();
-/// ```
+/// Chat module - public API exports.
 library;
 
-// Models
-export 'models/chat.dart';
-export 'models/message.dart';
+// Domain (entities, repositories, usecases)
+export 'domain/entities/chat_entity.dart';
+export 'domain/entities/message_entity.dart';
+export 'domain/repositories/chat_repository.dart';
 
-// Services
-export 'services/chat_service.dart';
-export 'services/message_service.dart';
+// Presentation (providers, screens, widgets)
+export 'presentation/screens/chat_list_screen.dart';
+export 'presentation/screens/chat_detail_screen.dart';
+export 'presentation/widgets/chat_item.dart';
+export 'presentation/widgets/message_bubble.dart';
+export 'presentation/widgets/message_input.dart';
 
-// Providers
-export 'providers/chat_provider.dart';
-export 'providers/message_provider.dart';
-
-// Screens
-export 'screens/chat_list_screen.dart';
-export 'screens/chat_detail_screen.dart';
-
-// Widgets
-export 'widgets/message_bubble.dart';
-export 'widgets/chat_item.dart';
-export 'widgets/message_input.dart';
-
+// Note: Data layer (DTOs, datasources, repository implementations) 
+// are NOT exported - they are internal implementation details.

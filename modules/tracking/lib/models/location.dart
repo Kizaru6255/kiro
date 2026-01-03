@@ -5,6 +5,8 @@ import 'dart:math' as math;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../domain/entities/location_entity.dart';
+
 part 'location.freezed.dart';
 part 'location.g.dart';
 
@@ -46,5 +48,17 @@ extension LocationExtension on Location {
 
   /// Formatted coordinates string.
   String get formattedCoordinates => '$latitude, $longitude';
+
+  /// Convert to LocationEntity.
+  LocationEntity toEntity() {
+    return LocationEntity(
+      latitude: latitude,
+      longitude: longitude,
+      altitude: altitude,
+      accuracy: accuracy,
+      speed: speed,
+      timestamp: timestamp,
+    );
+  }
 }
 

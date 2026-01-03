@@ -75,6 +75,18 @@ class ProcessUtils {
     return flutter(['pub', 'get'], workingDirectory: workingDirectory);
   }
 
+  /// Run build_runner to generate code.
+  static Future<ProcessResult> buildRunner({
+    String? workingDirectory,
+    bool deleteConflictingOutputs = true,
+  }) async {
+    final args = ['run', 'build_runner', 'build'];
+    if (deleteConflictingOutputs) {
+      args.add('--delete-conflicting-outputs');
+    }
+    return dart(args, workingDirectory: workingDirectory);
+  }
+
   /// Check if a command is available.
   static Future<bool> hasCommand(String command) async {
     try {

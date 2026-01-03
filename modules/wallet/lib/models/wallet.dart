@@ -3,6 +3,8 @@ library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../domain/entities/wallet_entity.dart';
+
 part 'wallet.freezed.dart';
 part 'wallet.g.dart';
 
@@ -41,6 +43,20 @@ extension WalletExtension on Wallet {
   /// Check if wallet is low on balance.
   bool isLowBalance([double threshold = 100]) {
     return balance < threshold;
+  }
+
+  /// Convert to WalletEntity.
+  WalletEntity toEntity() {
+    return WalletEntity(
+      id: id,
+      userId: userId,
+      balance: balance,
+      currency: currency,
+      isActive: isActive,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      metadata: metadata,
+    );
   }
 }
 
